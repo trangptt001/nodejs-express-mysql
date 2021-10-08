@@ -42,6 +42,10 @@ exports.findByPk = Model => async(req, res, next) => {
 
 exports.update = Model => async(req, res, next) => {
     try{
+        const id = req.params.id;
+        let model = req.body;
+        model = {...model, updatedAt: Date.now()}
+        const result = await Model.update(model, {where: {id}});
     }catch(error){
         return res.status(500).send(
             new ErrorResponse("MSG00",500, error.message)
