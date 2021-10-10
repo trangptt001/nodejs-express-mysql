@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require("../models");
+const ErrorResponse = require('../utils/error.class');
+const SuccessResponse = require('../utils/success.class');
 const User = db.User;
-const { responseSuccess, responseError } = require('./../helpers/create-response');
 require('dotenv').config();
 
 module.exports.login = async (req, res) => {
@@ -17,7 +18,7 @@ module.exports.login = async (req, res) => {
     }else{
         let checkPassword = bcrypt.compare(req.body.password, user.password);
         if(!checkPassword){
-            res.status(401).send(responseError(401, "Password is not correct"))
+            res.status(401).send(new ErrorResponse('MSG04', 401, "Password is not correct"))
             return;
         }
         const payload = {
@@ -25,18 +26,20 @@ module.exports.login = async (req, res) => {
         }
 
         let accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '30s'});
-        return res.status(200).send(responseSuccess("login success", {
+        return res.status(200).send(
+            new SuccessResponse(200, {
             username: user.username,
             accessToken: accessToken
-        }))
+        }, "login success"))
     }
     
 }
 
 module.exports.signup = async (req, res) => {
     if(!req.body.username || !req.body.password){
-        res.status(400).send(responseError(400, "User must have user name and password"));
-        return;
+        return res.status(400).send(
+            new ErrorResponse("MES033",400, "User must have user name and password")
+        );
     }
 
     const salt = await bcrypt.genSalt(12)
@@ -50,18 +53,21 @@ module.exports.signup = async (req, res) => {
 
     const dataUsers = await User.findAll({where: {username: model.username}});
     if(dataUsers.length > 0){
-        res.status(400).send(responseError(400,"User is already exit on system"));
-        return
+        return res.status(400).send(
+            new ErrorResponse("MES033",400, "Username already in system")
+        );
     }
     User.create(model).then(data => {
         if(data){
-            res.status(200).send(responseSuccess("Register success", {
+            res.status(200).send(new SuccessResponse(200, {
                 userid: data.id,
                 username: data.username
-            }))
+            },"Register success"))
         }
     })
     .catch(err => {
-        res.status(500).send(responseError(500, "Sonething wrong", err))
+        return res.status(500).send(
+            new ErrorResponse("MSG00",500, error.message)
+        )
     })
 }

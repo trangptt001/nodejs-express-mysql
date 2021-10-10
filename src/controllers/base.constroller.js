@@ -52,3 +52,47 @@ exports.update = Model => async(req, res, next) => {
         )
     }
 }
+
+exports.create = Model => async(req, res, next) => {
+    try{
+        const model = {
+            ...req.body,
+            createAt: Date.now()
+        };
+        const result = await Model.create(model);
+        if(result){
+            return res.status(200).send(
+                new SuccessResponse(200, result, "create success")
+            )
+        }
+    }catch(error){
+        return res.status(500).send(
+            new ErrorResponse("MSG00",500, error.message)
+        )
+    }
+}
+
+exports.getAllPaging = (Model, order) => async(req, res, next) => {
+    try{
+        let { pageSize, pageIndex } = req.query;
+        const result = await Model.findAndCountAll({
+            limit: + pageSize,
+            offset: + (pageIndex * (pageIndex)),
+            order: order
+        })
+        const data = {
+            items: result.rows,
+            totalRecord: result.count,
+            pageSize: Number.parseInt(pageSize),
+            pageIndex: Number.parseInt(pageIndex),
+            totalPage: Math.round(result.count/pageSize)
+        }
+        res.status(200).send(
+            new SuccessResponse(200, data, '')
+        );
+    }catch(error){
+        return res.status(500).send(
+            new ErrorResponse("MSG00",500, error.message)
+        )
+    }
+}

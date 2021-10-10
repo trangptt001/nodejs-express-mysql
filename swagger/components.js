@@ -1,6 +1,18 @@
 module.exports = {
     components: {
         schemas: {
+            Order: {
+                type: "object",
+                properties: {
+                    name: {
+                        type: "string"
+                    },
+                    order: {
+                        type: "string",
+                        enum: ['DESC', 'ASC']
+                    },
+                }
+            },
             Id: {
                 type: "object",
                 properties: {
@@ -16,6 +28,20 @@ module.exports = {
                         type: "string"
                     },
                     status: {
+                        type: "number"
+                    },
+                    message: {
+                        type: "string"
+                    }
+                }
+            },
+            SuccessResponse: {
+                type: "object",
+                properties: {
+                    statusCode: {
+                        type: "string"
+                    },
+                    data: {
                         type: "number"
                     },
                     message: {
