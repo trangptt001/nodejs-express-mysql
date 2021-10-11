@@ -41,6 +41,12 @@ exports.customers = {
                     type: "integer",
                     in: 'query',
                     required: true
+                },
+                {
+                    name: 'orderFirstName',
+                    type: 'string',
+                    in: 'query',
+                    enum: ['DESC','ASC']
                 }
             ],
             responses: {

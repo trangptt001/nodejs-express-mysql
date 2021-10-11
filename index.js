@@ -8,6 +8,12 @@ const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || 8080;
 const app = express();
 
+process.on('uncaughtException', err => {
+    console.error('There was an uncaught error', err)
+    process.exit(1) //mandatory (as per the Node.js docs)
+})
+
+  
 app.use(
     '/api-docs',
     swaggerUi.serve, 
